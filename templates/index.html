@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Vidyo Backend Assignment</title>
+    <script>
+        const request = ( url, params = {}, method = 'GET' ) => {
+            let options = {
+                method
+            };
+            if ( 'GET' === method ) {
+                url += '?' + ( new URLSearchParams( params ) ).toString();
+            } else {
+                options.body = JSON.stringify( params );
+            }
+            
+            return fetch( url, options ).then( response => response.json() );
+        };
+        const get = ( url, params ) => request( url, params, 'GET' );
+        const post = ( url, params ) => request( url, params, 'POST' );
+
+        function extractAudio(){
+            const params = {
+                input: "static/input/video.mp4",
+                output: "static/output/audio.wav"
+            };
+            const resp = get('/api/extract-audio',params).then(response => {
+                if (response.status === "Success"){
+                    alert(response.message);
+                }
+            })
+        }
+        
+        function watermarkVideo(){
+            const params = {
+                videoFile: "static/input/video.mp4",
+                imageFile: "static/input/image.png",
+                outputFile: "static/output/watermark.mp4",
+                wmHei: 60,
+                wmWid: 100,
+                wmX: 0,
+                wmY: 0
+            };
+            const resp = get('api/watermark',params).then(response => {
+                if (response.status==="Success"){
+                    alert(response.message);
+                }
+            })
+        }
+    </script>
+</head>
+<body>
+    <h2 align="center">Audio Extraction</h1>
+    The button given below will trigger a GET request on the endpoint '/api/extract-audio', with the following parameters: <br>
+    input: "static/input/video.mp4"<br>
+    output: "static/output/audio.wav"<br><br>
+    1. Go to <a href="/static/input/video.mp4">static/input/video.mp4</a> to validate the input video file. <br>
+    2. Go to <a href="/static/output/audio.wav">static/output/audio.wav</a> to verify that the audio file doesn't pre-exist. <br>
+    3. Click on the button <button onclick="extractAudio()">Extract Audio from Video File</button> for the API to be called. <br>
+    4. Go back to <a href="/static/output/audio.wav">static/output/audio.wav</a> to see the output.
+
+    <h2 align="center">Video Watermarking</h1>
+    The button given below will trigger a GET request on the endpoint '/api/watermark', with the following parameters: <br>
+    videoFile: "static/input/video.mp4"<br>
+    imageFile: "static/input/image.png"<br>
+    outputFile: "static/output/watermark.mp4"<br>
+    wmHei: 60<br>
+    wmWid: 100<br>
+    wmX: 0<br>
+    wmY: 0<br><br>
+    1. Go to <a href="/static/input/image.png">static/input/image.png</a> to validate the input image file. (Video File validated in previous task)<br>
+    2. Go to <a href="/static/output/watermark.mp4">static/output/watermark.mp4</a> to verify that the watermarked clip doesn't pre-exist. <br>
+    3. Click on the button <button onclick="watermarkVideo()">Add Watermark to Video</button> for the API to be called. (This one typically takes a few minutes)<br>
+    4. Go back to <a href="/static/output/watermark.mp4">static/output/watermark.mp4</a> to see the output.
+    <p style="color: red;font-weight: bold;">NOTE: For now parameters of both end points are hardcoded, but these values will eventually be passed in the request based on the input given by the user from the Frontend</p>
+</body>
+</html>
