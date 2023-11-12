@@ -1,17 +1,13 @@
-from django.shortcuts import render, HttpResponse
+from django.shortcuts import render
 from django.http import JsonResponse
 from moviepy.editor import VideoFileClip, ImageSequenceClip
 from PIL import Image
 import numpy as np
+from vidyo.models import ExtractAudio, Watermark
 
 # Create your views here.
 def index(request):
     return render(request,'index.html')
-
-def video(request):
-    if request.method=='GET':
-        print(dict(request.GET))
-    return JsonResponse({'status':"Success",'message':"This is the video page backend"})
 
 def extract(request):
     if request.method=='GET':
@@ -20,6 +16,13 @@ def extract(request):
         videoclip = VideoFileClip(inputfile)
         audioclip = videoclip.audio
         audioclip.write_audiofile(outputfile)
+
+        add_record = ExtractAudio(
+            username = "Current User",
+            input = inputfile,
+            output = outputfile
+        )
+        add_record.save()
     return JsonResponse({'status':"Success",'message':"The Audio file has been extracted, and the output is saved to " + outputfile})
 
 def watermark(request):
@@ -46,4 +49,13 @@ def watermark(request):
         wmClip = wmClip.set_audio(videoClip.audio)
         wmClip.write_videofile(outputfile,codec="libx264",audio_codec="aac")
 
+        add_record = Watermark(
+            username = "Current User",
+            video = videofile,
+            image = imagefile,
+            output = outputfile,
+            size = str(wmSize),
+            position = str(wmPos) 
+        )
+        add_record.save()
     return JsonResponse({'status':"Success",'message':"The watermarked video has been created, and the output is saved to " + outputfile})
